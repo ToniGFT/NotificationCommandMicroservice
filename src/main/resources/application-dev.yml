@@ -2,3 +2,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/WorkshopDev
+routes:
+  api:
+    base-url: mongodb://localhost:27017/WorkshopDev
+    get-by-id: /routes/{idString}

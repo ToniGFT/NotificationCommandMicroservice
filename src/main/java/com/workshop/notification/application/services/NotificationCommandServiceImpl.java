@@ -4,6 +4,7 @@ import com.workshop.notification.domain.exception.NotificationValidationExceptio
 import com.workshop.notification.domain.model.aggregates.Notification;
 import com.workshop.notification.domain.model.validation.NotificationValidator;
 import com.workshop.notification.domain.repository.NotificationCommandRepository;
+import com.workshop.notification.infraestructure.service.RouteService;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -12,17 +13,21 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
 
     private final NotificationCommandRepository notificationRepository;
     private final NotificationValidator notificationValidator;
+    private final RouteService routeService;
 
-    public NotificationCommandServiceImpl(NotificationCommandRepository notificationRepository, NotificationValidator notificationValidator) {
+    public NotificationCommandServiceImpl(NotificationCommandRepository notificationRepository, NotificationValidator notificationValidator, RouteService routeService) {
         this.notificationRepository = notificationRepository;
         this.notificationValidator = notificationValidator;
+        this.routeService = routeService;
     }
 
     @Override
     public Mono<Notification> createNotification(Notification notification) {
-        return Mono.just(notification)
+        return routeService.getRouteById(notification.getRouteId())
+                .switchIfEmpty(Mono.error(new RuntimeException("Route not found with id: " + notification.getRouteId())))
+                .then(Mono.just(notification))
                 .doOnNext(notificationValidator::validate)
-                .onErrorMap(e -> new NotificationValidationException("Invalid route data: " + e.getMessage()))
+                .onErrorMap(e -> new NotificationValidationException("Invalid notification data: " + e.getMessage()))
                 .flatMap(notificationRepository::save);
 
     }

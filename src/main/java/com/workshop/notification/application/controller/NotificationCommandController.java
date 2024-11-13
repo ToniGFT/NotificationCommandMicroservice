@@ -24,7 +24,7 @@ public class NotificationCommandController {
     }
 
     @PostMapping
-    public Mono<ResponseEntity<Notification>> createRoute(@RequestBody Notification notification) {
+    public Mono<ResponseEntity<Notification>> createNotification(@RequestBody Notification notification) {
         logger.info("Attempting to create a new route with ID: {}", notification.getRouteId());
         return notificationCommandService.createNotification(notification)
                 .flatMap(notificationResponseService::buildCreatedResponse)
