@@ -3,22 +3,13 @@ package com.workshop.notification.application.exceptions;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.bson.types.ObjectId;
-import org.springframework.http.HttpStatus;
-
-import java.time.LocalDateTime;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class ErrorResponse {
+    private int code;
     private String message;
-    private String errorCode;
-    private HttpStatus status;
-
-    @Builder.Default
-    private LocalDateTime timestamp = LocalDateTime.now();
-
-    @Builder.Default
-    private ObjectId errorId = new ObjectId();
 }

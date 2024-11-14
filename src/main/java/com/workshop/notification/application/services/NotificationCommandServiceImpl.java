@@ -1,6 +1,5 @@
 package com.workshop.notification.application.services;
 
-import com.workshop.notification.domain.exception.NotificationValidationException;
 import com.workshop.notification.domain.model.aggregates.Notification;
 import com.workshop.notification.domain.model.validation.NotificationValidator;
 import com.workshop.notification.domain.repository.NotificationCommandRepository;
@@ -23,12 +22,10 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
 
     @Override
     public Mono<Notification> createNotification(Notification notification) {
-        return routeService.getRouteById(notification.getRouteId())
-                .switchIfEmpty(Mono.error(new RuntimeException("Route not found with id: " + notification.getRouteId())))
-                .then(Mono.just(notification))
-                .doOnNext(notificationValidator::validate)
-                .onErrorMap(e -> new NotificationValidationException("Invalid notification data: " + e.getMessage()))
-                .flatMap(notificationRepository::save);
-
+        return routeService.getRouteById(notification.getRouteId().toHexString())
+                .flatMap(route -> {
+                    return notificationRepository.save(notification);
+                })
+                .switchIfEmpty(Mono.error(new RuntimeException("Route not found with id: " + notification.getRouteId().toString())));
     }
 }

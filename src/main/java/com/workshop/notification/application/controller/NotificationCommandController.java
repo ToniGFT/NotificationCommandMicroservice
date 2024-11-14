@@ -28,7 +28,7 @@ public class NotificationCommandController {
         logger.info("Attempting to create a new route with ID: {}", notification.getRouteId());
         return notificationCommandService.createNotification(notification)
                 .flatMap(notificationResponseService::buildCreatedResponse)
-                .doOnSuccess(response -> logger.info("Successfully created notification with ID: {}", notification.getRouteId()));
+                .doOnSuccess(response -> logger.info("Successfully created notification with ID: {}", notification.getNotificationId()));
     }
 
 }

@@ -47,10 +47,10 @@ public class Notification {
     private Severity severity;
 
     @NotBlank(message = "Route ID cannot be empty")
-    private String routeId;
+    private ObjectId routeId;
 
     @NotBlank(message = "Vehicle ID cannot be empty")
-    private String vehicleId;
+    private ObjectId vehicleId;
 
     @NotEmpty(message = "Recipients list cannot be empty")
     private List<Recipient> recipients;

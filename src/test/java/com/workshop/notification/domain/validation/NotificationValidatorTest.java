@@ -1,7 +1,7 @@
 package com.workshop.notification.domain.validation;
 
-import com.workshop.vehicle.vehicle_service.domain.model.aggregates.Vehicle;
-import com.workshop.vehicle.vehicle_service.domain.model.validation.VehicleValidator;
+import com.workshop.notification.domain.model.aggregates.Notification;
+import com.workshop.notification.domain.model.validation.NotificationValidator;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,30 +16,30 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class VehicleValidatorTest {
+class NotificationValidatorTest {
 
     private Validator validator;
-    private VehicleValidator vehicleValidator;
+    private NotificationValidator notificationValidator;
 
     @BeforeEach
     void setUp() {
         validator = Mockito.mock(Validator.class);
-        vehicleValidator = new VehicleValidator(validator);
+        notificationValidator = new NotificationValidator(validator);
     }
 
     @Test
     void validate_ShouldThrowException_WhenValidationFails() {
-        Vehicle vehicle = new Vehicle();
-        Set<ConstraintViolation<Vehicle>> violations = new HashSet<>();
+        Notification notification = new Notification();
+        Set<ConstraintViolation<Notification>> violations = new HashSet<>();
 
-        ConstraintViolation<Vehicle> violation = mock(ConstraintViolation.class);
+        ConstraintViolation<Notification> violation = mock(ConstraintViolation.class);
         when(violation.getMessage()).thenReturn("Invalid vehicle data");
         violations.add(violation);
 
-        when(validator.validate(vehicle)).thenReturn(violations);
+        when(validator.validate(notification)).thenReturn(violations);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            vehicleValidator.validate(vehicle);
+            notificationValidator.validate(notification);
         });
 
         assertTrue(exception.getMessage().contains("Validation errors: Invalid vehicle data"));
@@ -47,11 +47,11 @@ class VehicleValidatorTest {
 
     @Test
     void validate_ShouldNotThrowException_WhenValidationPasses() {
-        Vehicle vehicle = new Vehicle();
-        Set<ConstraintViolation<Vehicle>> violations = new HashSet<>();
+        Notification notification = new Notification();
+        Set<ConstraintViolation<Notification>> violations = new HashSet<>();
 
-        when(validator.validate(vehicle)).thenReturn(violations);
+        when(validator.validate(notification)).thenReturn(violations);
 
-        vehicleValidator.validate(vehicle);
+        notificationValidator.validate(notification);
     }
 }

@@ -1,55 +1,47 @@
-package com.workshop.notification.application.controller;
+package com.workshop.notification.application.service;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import com.workshop.notification.application.response.service.NotificationResponseService;
-import com.workshop.notification.application.services.NotificationCommandService;
+import com.workshop.notification.application.services.NotificationCommandServiceImpl;
 import com.workshop.notification.domain.model.aggregates.Notification;
+import com.workshop.notification.domain.model.entities.Action;
 import com.workshop.notification.domain.model.entities.Recipient;
 import com.workshop.notification.domain.model.valueobjects.Contact;
+import com.workshop.notification.domain.model.valueobjects.enums.NotificationType;
+import com.workshop.notification.domain.model.valueobjects.enums.Severity;
+import com.workshop.notification.domain.repository.NotificationCommandRepository;
+import com.workshop.notification.infraestructure.models.aggregates.Route;
+import com.workshop.notification.infraestructure.service.RouteService;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import reactor.core.publisher.Mono;
 
-import static com.workshop.notification.domain.model.valueobjects.enums.ActionStatus.COMPLETED;
-import static com.workshop.notification.domain.model.valueobjects.enums.ActionType.SEND_EMAIL;
-import static com.workshop.notification.domain.model.valueobjects.enums.RecipientType.PASSENGER;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import com.workshop.notification.domain.model.entities.Action;
-import com.workshop.notification.domain.model.valueobjects.enums.NotificationType;
-import com.workshop.notification.domain.model.valueobjects.enums.Severity;
-
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-public class NotificationCommandControllerTest {
+import static com.workshop.notification.domain.model.valueobjects.enums.ActionStatus.COMPLETED;
+import static com.workshop.notification.domain.model.valueobjects.enums.ActionType.SEND_EMAIL;
+import static com.workshop.notification.domain.model.valueobjects.enums.RecipientType.PASSENGER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+public class NotificationCommandServiceImplTest {
 
     @InjectMocks
-    private NotificationCommandController notificationCommandController;
+    private NotificationCommandServiceImpl notificationCommandService;
 
     @Mock
-    private NotificationCommandService notificationCommandService;
-
+    private NotificationCommandRepository notificationCommandRepository;
     @Mock
-    private NotificationResponseService notificationResponseService;
+    private RouteService routeService;
 
     private Notification notification;
 
-    @Mock
-    private Appender<ILoggingEvent> mockAppender;
-
-    @Captor
-    private ArgumentCaptor<ILoggingEvent> captorLoggingEvent;
 
     @BeforeEach
     public void setUp() {
@@ -91,26 +83,31 @@ public class NotificationCommandControllerTest {
                 .recipients(recipients)
                 .actions(actions)
                 .build();
-
-        Logger logger = (Logger) LoggerFactory.getLogger(NotificationCommandController.class);
-        logger.addAppender(mockAppender);
     }
 
     @Test
-    public void testCreateNotificationLogsOnSuccess() {
-        when(notificationCommandService.createNotification(any(Notification.class))).thenReturn(Mono.just(notification));
+    public void testCreateNotificationExists() {
+        when(routeService.getRouteById(any(String.class))).thenReturn(Mono.just(new Route()));
+        when(notificationCommandRepository.save(any(Notification.class))).thenReturn(Mono.just(notification));
 
-        URI location = URI.create("/notifications/" + notification.getNotificationId());
-        when(notificationResponseService.buildCreatedResponse(any(Notification.class))).thenReturn(Mono.just(ResponseEntity.created(location).body(notification)));
+        Mono<Notification> response = notificationCommandService.createNotification(notification);
 
-        Mono<ResponseEntity<Notification>> response = notificationCommandController.createNotification(notification);
-        response.block();
+        assertEquals(notification, response.block());
+        verify(notificationCommandRepository, times(1)).save(any(Notification.class));
+        verify(routeService, times(1)).getRouteById(any(String.class));
+    }
 
-        verify(mockAppender, atLeastOnce()).doAppend(captorLoggingEvent.capture());
+    @Test
+    public void testCreateNotificationNotificationNotFound() {
 
-        boolean logEncontrado = captorLoggingEvent.getAllValues().stream()
-                .anyMatch(event -> event.getFormattedMessage().contains("Successfully created notification with ID: " + notification.getNotificationId()));
+        when(routeService.getRouteById(any(String.class))).thenReturn(Mono.empty());
 
-        assertTrue(logEncontrado, "El log esperado no fue encontrado.");
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            notificationCommandService.createNotification(notification).block();
+        });
+
+        assertEquals("Route not found with id: " + notification.getRouteId().toString(), exception.getMessage());
+        verify(notificationCommandRepository, times(0)).save(any(Notification.class));
+        verify(routeService, times(1)).getRouteById(any(String.class));
     }
 }
