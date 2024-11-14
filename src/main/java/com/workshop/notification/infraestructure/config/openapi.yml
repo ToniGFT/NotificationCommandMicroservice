@@ -1,0 +1,89 @@
+openapi: 3.0.0
+info:
+  title: Notification Service API
+  description: API for handling notifications
+  version: 1.0.0
+paths:
+  /notifications:
+    post:
+      summary: Create a new notification
+      description: Creates a new notification based on the provided data
+      operationId: createNotification
+      requestBody:
+        description: Notification object that needs to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      responses:
+        '201':
+          description: Notification created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+        '400':
+          description: Bad Request if the input data is invalid
+        '500':
+          description: Internal Server Error if something goes wrong
+
+components:
+  schemas:
+    Notification:
+      type: object
+      properties:
+        notificationId:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        type:
+          type: string
+        title:
+          type: string
+          maxLength: 100
+        message:
+          type: string
+          maxLength: 500
+        severity:
+          type: string
+        routeId:
+          type: string
+        vehicleId:
+          type: string
+        recipients:
+          type: array
+          items:
+            type: object
+            properties:
+              recipientId:
+                type: string
+              name:
+                type: string
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              actionId:
+                type: string
+              type:
+                type: string
+              status:
+                type: string
+              timestamp:
+                type: string
+                format: date-time
+              errorMessage:
+                type: string
+
+    NotificationResponse:
+      type: object
+      properties:
+        location:
+          type: string
+          description: URI of the newly created notification
+        notification:
+          $ref: '#/components/schemas/Notification'
