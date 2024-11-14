@@ -1,6 +1,6 @@
-package com.workshop.notification.infraestructure.service;
+package com.workshop.notification.infraestructure.Route.service;
 
-import com.workshop.notification.infraestructure.models.aggregates.Route;
+import com.workshop.notification.infraestructure.Route.model.aggregates.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,8 +19,8 @@ public class RouteService {
                         @Value("${routes.api.base-url}") String baseUrl,
                         @Value("${routes.api.get-by-id}") String routeUrl) {
         this.webClient = webClient;
-        this.routeUrl=routeUrl;
-        this.baseUrl=baseUrl;
+        this.routeUrl = routeUrl;
+        this.baseUrl = baseUrl;
     }
 
     public Mono<Route> getRouteById(String idString) {
@@ -29,8 +29,9 @@ public class RouteService {
                 .retrieve()
                 .bodyToMono(Route.class)
                 .onErrorResume(error -> {
-                    System.err.println("Error al llamar al servicio de rutas: " + error.getMessage());
+                    System.err.println("Error calling Route microservice: " + error.getMessage());
                     return Mono.empty();
                 });
     }
+
 }

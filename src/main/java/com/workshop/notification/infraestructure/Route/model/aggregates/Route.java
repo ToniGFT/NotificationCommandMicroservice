@@ -1,6 +1,8 @@
-package com.workshop.notification.infraestructure.models.aggregates;
-import com.workshop.notification.infraestructure.models.entities.Schedule;
-import com.workshop.notification.infraestructure.models.entities.Stop;
+package com.workshop.notification.infraestructure.Route.model.aggregates;
+
+
+import com.workshop.notification.infraestructure.Route.model.entities.Schedule;
+import com.workshop.notification.infraestructure.Route.model.entities.Stop;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +13,6 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.List;
 
 @Data
@@ -24,13 +25,16 @@ public class Route {
     @Id
     private ObjectId routeId;
 
-    @NotEmpty(message = "The route name cannot be empty")
+    @NotEmpty(message = "El nombre de la ruta no puede estar vacío")
     private String routeName;
 
-    @NotEmpty(message = "There must be at least one stop in the route")
+    @NotEmpty(message = "Debe haber al menos una parada en la ruta")
     private List<@Valid Stop> stops;
 
-    @NotNull(message = "The schedule cannot be null")
+    @NotNull(message = "El horario no puede ser nulo")
     @Valid
     private Schedule schedule;
+
 }
+
+

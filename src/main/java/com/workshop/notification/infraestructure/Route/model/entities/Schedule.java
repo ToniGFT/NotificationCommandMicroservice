@@ -1,6 +1,6 @@
-package com.workshop.notification.infraestructure.models.entities;
+package com.workshop.notification.infraestructure.Route.model.entities;
 
-import com.workshop.notification.infraestructure.models.valueobjects.WeekSchedule;
+import com.workshop.notification.infraestructure.Route.model.valueobjects.WeekSchedule;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -14,11 +14,13 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Schedule {
 
-    @NotNull(message = "Weekdays schedule cannot be null")
+    @NotNull(message = "El horario entre semana no puede ser nulo")
     @Valid
     private WeekSchedule weekdays;
 
-    @NotNull(message = "Weekends schedule cannot be null")
+    @NotNull(message = "El horario de fin de semana no puede ser nulo")
     @Valid
     private WeekSchedule weekends;
+
 }
+
