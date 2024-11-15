@@ -26,8 +26,8 @@ class NotificationResponseServiceTest {
     @Test
     void buildCreatedResponse_ShouldReturnCreatedResponse() {
         Notification notification = new Notification();
-        URI location = URI.create("/notifications/" + notification.getNotificationId());  // Construye la URI del recurso creado
-        ResponseEntity<Notification> expectedResponse = ResponseEntity.created(location).body(notification);  // Usa .body() para añadir el cuerpo
+        URI location = URI.create("/notifications/" + notification.getNotificationId());
+        ResponseEntity<Notification> expectedResponse = ResponseEntity.created(location).body(notification);
 
 
         try (MockedStatic<NotificationResponseBuilder> mockedStatic = mockStatic(NotificationResponseBuilder.class)) {

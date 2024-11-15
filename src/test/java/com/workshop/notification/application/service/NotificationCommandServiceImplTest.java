@@ -8,8 +8,10 @@ import com.workshop.notification.domain.model.valueobjects.Contact;
 import com.workshop.notification.domain.model.valueobjects.enums.NotificationType;
 import com.workshop.notification.domain.model.valueobjects.enums.Severity;
 import com.workshop.notification.domain.repository.NotificationCommandRepository;
-import com.workshop.notification.infraestructure.models.aggregates.Route;
-import com.workshop.notification.infraestructure.service.RouteService;
+import com.workshop.notification.infraestructure.Route.model.aggregates.Route;
+import com.workshop.notification.infraestructure.Route.service.RouteService;
+import com.workshop.notification.infraestructure.Vehicle.model.aggregates.Vehicle;
+import com.workshop.notification.infraestructure.Vehicle.service.VehicleService;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,8 @@ public class NotificationCommandServiceImplTest {
     private NotificationCommandRepository notificationCommandRepository;
     @Mock
     private RouteService routeService;
+    @Mock
+    private VehicleService vehicleService;
 
     private Notification notification;
 
@@ -88,6 +92,7 @@ public class NotificationCommandServiceImplTest {
     @Test
     public void testCreateNotificationExists() {
         when(routeService.getRouteById(any(String.class))).thenReturn(Mono.just(new Route()));
+        when(vehicleService.getVehicleById(any(String.class))).thenReturn(Mono.just(new Vehicle()));
         when(notificationCommandRepository.save(any(Notification.class))).thenReturn(Mono.just(notification));
 
         Mono<Notification> response = notificationCommandService.createNotification(notification);
